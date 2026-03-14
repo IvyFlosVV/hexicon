@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Sandbox — {{ item['name'] }} — Hexicon</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap">
+    <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5/dist/iro.min.js"></script>
+    <style>
+        :root {
+            --bg: #0a0a0d;
+            --surface: #12121a;
+            --surface-2: #1a1a24;
+            --border: #2a2a36;
+            --text: #e8e8ed;
+            --text-muted: #888;
+            --accent: #6c8bd4;
+            --shadow: 0 4px 24px rgba(0,0,0,0.4);
+            --radius: 12px;
+            --radius-sm: 8px;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
+            line-height: 1.5;
+            width: 95%;
+            max-width: 1600px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 2vw;
+            padding-top: 3rem;
+        }
+        .page-wrapper {
+            width: 95%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 0 80px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .page-wrapper > * { margin-left: 0; }
+        .btn-back { margin-left: 0; display: inline-flex; align-items: center; padding: 0.6rem 1.25rem; border-radius: 8px; font-size: 0.95rem; font-weight: 600; text-decoration: none; background: linear-gradient(145deg, #7f8c8d 0%, #b8c6cb 25%, #7f8c8d 50%, #ffffff 75%, #7f8c8d 100%); color: #000; border: 1px solid #777; cursor: pointer; transition: all 0.2s; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4), inset -1px -1px 0px rgba(255, 255, 255, 0.2), inset 1px 1px 0px rgba(0, 0, 0, 0.5); }
+        .btn-back:hover { transform: translateY(-2px); box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5), inset -1px -1px 0px rgba(255, 255, 255, 0.3), inset 1px 1px 0px rgba(0, 0, 0, 0.6); }
+        .preview-header { margin-top: 24px; margin-bottom: 0; margin-left: 0; }
+        .subpage-title, .preview-name {
+            font-size: 3rem;
+            font-style: italic;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            margin: 0 0 0.5rem 0;
+            color: var(--text);
+        }
+        .preview-header .subpage-title, .preview-header .preview-name { margin-top: 0; }
+        .control-tower { margin-top: 32px; width: 100%; margin-left: 0; }
+        .preview-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+        .tag-pill {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
+            background: rgba(108, 139, 212, 0.2);
+            color: var(--accent);
+            font-size: 0.75rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        /* Control Tower: sidebar + workspace */
+        .control-tower {
+            display: flex;
+            gap: 30px;
+            align-items: stretch;
+        }
+        .control-sidebar {
+            width: 350px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .picker-card {
+            justify-content: center;
+            align-items: center;
+        }
+        .picker-card .control-row { margin-bottom: 0; text-align: center; }
+        .picker-card .control-row label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 1.25rem;
+            display: block;
+        }
+        #color-picker-container { margin: 0; padding: 0; border-radius: var(--radius-sm); }
+        .preview-card {
+            height: 250px;
+            flex-shrink: 0;
+            min-height: 0;
+        }
+        .preview-card .panel-title { margin-bottom: 0.5rem; }
+        #playground-stage {
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            transition: background-color 0.15s ease;
+            background-color: #1a1a1a;
+        }
+        .playground-iframe { width: 100%; height: 100%; min-height: 0; border-radius: var(--radius-sm); }
+        .workspace-column {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .editor-card {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .editor-card .panel-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            flex-shrink: 0;
+        }
+        .editor-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; width: 100%; overflow: hidden; }
+        #editor {
+            width: 100%;
+            flex: 1;
+            min-height: 0;
+            padding: 1rem 1.25rem;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-family: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            resize: none;
+            overflow-y: auto;
+        }
+        #editor:focus { outline: none; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15); }
+        .editor-copy-wrap { margin-top: 0.5rem; flex-shrink: 0; }
+        .btn-editor-copy { padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.85rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 0.35rem; transition: all 0.2s; }
+        .btn-editor-copy:hover { color: var(--text); border-color: var(--accent); }
+        #toast { position: fixed; bottom: 1.5rem; right: 1.5rem; padding: 0.75rem 1.25rem; background: #2d6a4f; color: #fff; border-radius: 8px; font-size: 0.9rem; font-weight: 500; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        #toast.visible { opacity: 1; visibility: visible; }
+        .panel-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+        .playground-swatch { width: 140px; height: 140px; border-radius: 24px; box-shadow: var(--shadow); flex-shrink: 0; }
+        .color-swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 4px; border: 1px solid rgba(255,255,255,0.2); vertical-align: text-top; }
+        @media (max-width: 1000px) {
+            .control-tower { flex-direction: column; }
+            .control-sidebar { width: 100%; }
+            .preview-card { height: 280px; }
+            .editor-card { min-height: 400px; }
+        }
+        @media (max-width: 640px) {
+            .page-wrapper { padding: 24px 0 60px 0; }
+        }
+        .code-display-block { width: 100%; margin-top: 1.5rem; margin-left: 0; padding: 1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: var(--radius-sm); backdrop-filter: blur(10px); box-sizing: border-box; }
+        .code-display-block pre { margin: 0; overflow-x: auto; }
+        .code-display-block code { font-family: "JetBrains Mono", "Fira Code", ui-monospace, monospace; font-size: 0.85rem; white-space: pre-wrap; word-break: break-all; }
+        .app-footer { font-size: 0.75rem; font-weight: 300; color: rgba(255, 255, 255, 0.3); text-align: center; padding-top: 60px; padding-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <a href="{{ url_for('index') }}" class="btn-back">← Back to Gallery</a>
+        <header class="preview-header">
+            <h1 class="subpage-title preview-name">{{ item['name'] }}</h1>
+            <div class="preview-tags">
+                {% set tag_list = (item['tags'] or '').split(',') %}
+                {% for tag in tag_list %}
+                    {% set t = tag.strip() %}
+                    {% if t %}
+                        <span class="tag-pill">{{ t }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </header>
+
+        <div class="control-tower" data-type="{{ (item['element_type'] or '').lower() }}">
+            <aside class="control-sidebar">
+                <div class="glass-card picker-card">
+                    <div class="control-row">
+                        <label>Choose Background</label>
+                        <div id="color-picker-container" aria-label="Playground background color"></div>
+                    </div>
+                </div>
+                <div class="glass-card preview-card">
+                    <div class="panel-title">Live Preview</div>
+                    <div id="playground-stage">
+                        {% set elem_type = (item['element_type'] or '').lower() %}
+                        {% if elem_type == 'css' %}
+                            <iframe id="preview-frame" class="playground-iframe" title="Live preview" allowtransparency="true" style="background: transparent; border: none;"></iframe>
+                        {% elif elem_type == 'color' %}
+                            <div id="preview-swatch" class="playground-swatch" style="background: {{ item['content'] }};"></div>
+                        {% else %}
+                            <p style="color: var(--text-muted);">Unsupported type: {{ item['element_type'] }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </aside>
+            <div class="workspace-column">
+                <div class="glass-card editor-card">
+                    <div class="panel-title">{% if (item['element_type'] or '').lower() == 'css' %}STYLES{% else %}CODE{% endif %}</div>
+                    <div class="editor-wrap">
+                        <textarea id="editor" spellcheck="false" placeholder="Edit HTML/CSS here…">{{ editor_initial }}</textarea>
+                        <div class="editor-copy-wrap">
+                            <button type="button" class="btn-editor-copy" id="editor-copy-btn" aria-label="Copy code">📋 Copy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="code-display-block" aria-label="Raw snippet">
+            <div class="panel-title">Raw snippet</div>
+            <pre><code class="snippet-code">{{ item['content'] }}</code></pre>
+        </section>
+    </div>
+
+    <footer class="app-footer">Presented by Ivy. Powered by Gemini. Developed in Cursor.</footer>
+
+    <div id="toast" aria-live="polite">Copied to clipboard!</div>
+
+    <script>
+        (function() {
+            var type = document.querySelector('.control-tower').getAttribute('data-type');
+            var playgroundStage = document.getElementById('playground-stage');
+            var editor = document.getElementById('editor');
+            var toast = document.getElementById('toast');
+            function showToast() {
+                toast.classList.add('visible');
+                clearTimeout(toast._tid);
+                toast._tid = setTimeout(function() { toast.classList.remove('visible'); }, 2000);
+            }
+            var editorCopyBtn = document.getElementById('editor-copy-btn');
+            if (editorCopyBtn && editor) {
+                editorCopyBtn.addEventListener('click', function() {
+                    var text = editor.value || '';
+                    navigator.clipboard.writeText(text).then(showToast).catch(showToast);
+                });
+            }
+            var container = document.getElementById('color-picker-container');
+
+            function applyPlaygroundBackground(hex) {
+                var stage = document.getElementById('playground-stage');
+                if (stage && hex) stage.style.backgroundColor = hex;
+            }
+
+            if (container && playgroundStage) {
+                function initColorPicker() {
+                    if (typeof iro === 'undefined') return;
+                    var colorPicker = new iro.ColorPicker('#color-picker-container', {
+                        width: 300,
+                        color: '#1a1a24',
+                        layout: [
+                            { component: iro.ui.Wheel },
+                            { component: iro.ui.Slider }
+                        ]
+                    });
+                    applyPlaygroundBackground(colorPicker.color.hexString);
+                    colorPicker.on('color:change', function() {
+                        applyPlaygroundBackground(colorPicker.color.hexString);
+                    });
+                }
+                if (typeof iro !== 'undefined') {
+                    initColorPicker();
+                } else {
+                    window.addEventListener('load', initColorPicker);
+                }
+            }
+
+            if (type === 'css' && editor) {
+                var frame = document.getElementById('preview-frame');
+                function updatePreview() {
+                    try {
+                        frame.srcdoc = editor.value;
+                    } catch (e) {}
+                }
+                editor.addEventListener('input', updatePreview);
+                editor.addEventListener('change', updatePreview);
+                updatePreview();
+            }
+
+            if (type === 'color' && editor) {
+                var swatch = document.getElementById('preview-swatch');
+                function updateSwatch() {
+                    if (swatch) swatch.style.background = editor.value.trim() || 'transparent';
+                }
+                editor.addEventListener('input', updateSwatch);
+                editor.addEventListener('change', updateSwatch);
+            }
+
+            function injectColorSwatches() {
+                var codeEls = document.querySelectorAll('.code-display-block code.snippet-code, .content-with-copy code');
+                var hexRe = /(#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})\b)/g;
+                codeEls.forEach(function(el) {
+                    if (el.closest('textarea') || el.closest('input')) return;
+                    el.innerHTML = el.innerHTML.replace(hexRe, '<span class="color-swatch" style="background-color: $1"></span>$1');
+                });
+            }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', injectColorSwatches);
+            } else {
+                injectColorSwatches();
+            }
+        })();
+    </script>
+</body>
+</html>

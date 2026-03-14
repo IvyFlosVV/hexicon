@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit — {{ item['name'] }} — Hexicon</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap">
+    <style>
+        :root {
+            --bg: #0a0a0d;
+            --text: #e8e8ed;
+            --text-muted: #888;
+            --accent: #6c8bd4;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
+            line-height: 1.5;
+            width: 95%;
+            max-width: 1600px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 2vw;
+            padding-top: 3rem;
+        }
+        .page-wrapper {
+            width: 95%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .page-wrapper > * { margin-left: 0; }
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            background: linear-gradient(145deg, #7f8c8d 0%, #b8c6cb 25%, #7f8c8d 50%, #ffffff 75%, #7f8c8d 100%);
+            color: #000;
+            border: 1px solid #777;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4), inset -1px -1px 0px rgba(255, 255, 255, 0.2), inset 1px 1px 0px rgba(0, 0, 0, 0.5);
+            margin-left: 0;
+        }
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5), inset -1px -1px 0px rgba(255, 255, 255, 0.3), inset 1px 1px 0px rgba(0, 0, 0, 0.6);
+        }
+        .subpage-title {
+            font-size: 3rem;
+            font-style: italic;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            margin: 0;
+            margin-top: 24px;
+            color: var(--text);
+        }
+        .form-wrap { width: 100%; margin-left: 0; margin-top: 32px; }
+        form {
+            width: 100%;
+            margin-left: 0;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            padding: 50px;
+        }
+        label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.35rem; color: var(--text-muted); }
+        input, select, textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1.25rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+        textarea {
+            min-height: 140px;
+            resize: vertical;
+            font-family: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            background: linear-gradient(145deg, #7f8c8d 0%, #b8c6cb 25%, #7f8c8d 50%, #ffffff 75%, #7f8c8d 100%);
+            color: #000;
+            border: 1px solid #777;
+            transition: all 0.2s;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4), inset -1px -1px 0px rgba(255, 255, 255, 0.2), inset 1px 1px 0px rgba(0, 0, 0, 0.5);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5), inset -1px -1px 0px rgba(255, 255, 255, 0.3), inset 1px 1px 0px rgba(0, 0, 0, 0.6);
+        }
+        @media (max-width: 640px) {
+            .page-wrapper { padding: 24px 0; }
+            form { padding: 24px; }
+        }
+        .app-footer { font-size: 0.75rem; font-weight: 300; color: rgba(255, 255, 255, 0.3); text-align: center; padding-top: 60px; padding-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <main class="page-wrapper">
+        <a href="{{ url_for('index') }}" class="btn-back">← Back to list</a>
+        <h1 class="subpage-title">Edit item</h1>
+        <div class="form-wrap">
+            <form method="post" action="{{ url_for('edit', id=item['id']) }}">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" value="{{ item['name'] }}" required autocomplete="off">
+                <label for="element_type">Type</label>
+                <select id="element_type" name="element_type" required>
+                    <option value="Color" {{ 'selected' if item['element_type'] == 'Color' else '' }}>Color</option>
+                    <option value="CSS" {{ 'selected' if item['element_type'] == 'CSS' else '' }}>CSS</option>
+                </select>
+                <label for="tags">Tags (comma-separated)</label>
+                <input type="text" id="tags" name="tags" value="{{ item['tags'] or '' }}" placeholder="e.g. ocean, minimal" autocomplete="off">
+                <label for="content">Content</label>
+                <textarea id="content" name="content" required placeholder="Hex codes or CSS snippet">{{ item['content'] }}</textarea>
+                <button type="submit" class="btn">Save changes</button>
+            </form>
+        </div>
+    </main>
+    <footer class="app-footer">Presented by Ivy. Powered by Gemini. Developed in Cursor.</footer>
+</body>
+</html>

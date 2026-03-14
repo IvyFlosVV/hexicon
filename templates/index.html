@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hexicon</title>
+    <style>
+        :root { --bg: #0f0f12; --surface: #1a1a20; --border: #2a2a33; --text: #e8e8ed; --muted: #888; --accent: #6c8bd4; --danger: #c94a4a; }
+        * { box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; line-height: 1.5; }
+        .page-wrapper { width: 95%; max-width: 1200px; margin: 0 auto; padding: 80px 0 40px 0; }
+        .page-wrapper > * { margin-left: 0; }
+        h1 { margin-bottom: 0; letter-spacing: -0.02em; font-style: italic; font-weight: 900; font-size: clamp(3rem, 8vw, 5rem); background: linear-gradient(to right, #ffffff, #888, #fff, #444, #fff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .header-row .site-logo { display: block; height: clamp(3rem, 8vw, 5rem); width: auto; margin-top: 8px; object-fit: contain; }
+        .tagline { color: #9ca3af; font-size: 0.95rem; font-weight: 300; letter-spacing: 0.5px; line-height: 1.5; margin-top: 8px; max-width: 600px; }
+        .table-wrap { overflow-x: auto; margin-bottom: 1rem; }
+        table { width: 100%; min-width: 600px; border-collapse: collapse; background: var(--surface); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: var(--surface); color: var(--muted); font-weight: 500; font-size: 0.85rem; }
+        tr:last-child td { border-bottom: none; }
+        .content-cell { white-space: pre-wrap; font-family: ui-monospace, monospace; font-size: 0.85em; max-width: 280px; }
+        .empty { color: var(--muted); }
+        .actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+        .btn { display: inline-block; padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.875rem; text-decoration: none; cursor: pointer; font-family: inherit; background-color: rgba(255, 255, 255, 0.05); color: #9ca3af; border: 1px solid rgba(255,255,255,0.1); font-weight: 500; transition: all 0.2s; }
+        .btn-preview:hover { background-color: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
+        .btn-edit:hover { background-color: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3); }
+        .btn-delete:hover { background-color: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+        .tags-cell { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+        .tag-pill { display: inline-block; padding: 0.25rem 0.6rem; border-radius: 999px; background: rgba(108, 139, 212, 0.18); color: var(--accent); font-size: 0.75rem; font-weight: 500; white-space: nowrap; }
+        .tags-cell .no-tags { color: var(--muted); font-size: 0.9rem; }
+        .header-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+        .btn-add { display: inline-flex; align-items: center; padding: 0.6rem 1.25rem; border-radius: 8px; font-size: 0.95rem; font-weight: 600; text-decoration: none; background: linear-gradient(145deg, #7f8c8d 0%, #b8c6cb 25%, #7f8c8d 50%, #ffffff 75%, #7f8c8d 100%); color: #000; border: 1px solid #777; cursor: pointer; transition: all 0.2s; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4), inset -1px -1px 0px rgba(255, 255, 255, 0.2), inset 1px 1px 0px rgba(0, 0, 0, 0.5); }
+        .btn-add:hover { transform: translateY(-2px); box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5), inset -1px -1px 0px rgba(255, 255, 255, 0.3), inset 1px 1px 0px rgba(0, 0, 0, 0.6); }
+        .trending { margin-bottom: 1.5rem; }
+        .trending-title { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.5rem; }
+        .trending-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .trending-pill { display: inline-block; padding: 0.35rem 0.75rem; border-radius: 999px; background: rgba(180, 140, 220, 0.25); color: #c4a8e8; font-size: 0.8rem; font-weight: 600; white-space: nowrap; }
+        .analytics { margin-bottom: 1.5rem; }
+        .analytics-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.75rem; }
+        .analytics-grid { display: flex; flex-wrap: wrap; width: 100%; max-width: 66.66%; margin: 20px 0; gap: 20px; }
+        .stat-card { flex: 1; min-width: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; }
+        @media (max-width: 1024px) {
+            .analytics-grid { max-width: 100%; }
+        }
+        .stat-card .stat-value { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+        .stat-card .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+        .content-with-copy { display: flex; flex-direction: column; gap: 0.35rem; }
+        .content-with-copy code { display: block; white-space: pre-wrap; font-family: ui-monospace, monospace; font-size: 0.85em; max-width: 280px; word-break: break-all; }
+        .btn-copy { align-self: flex-start; padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.8rem; background: var(--surface); border: 1px solid var(--border); color: var(--muted); cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 0.35rem; }
+        .btn-copy:hover { color: var(--text); border-color: var(--accent); }
+        #toast { position: fixed; bottom: 1.5rem; right: 1.5rem; padding: 0.75rem 1.25rem; background: #2d6a4f; color: #fff; border-radius: 8px; font-size: 0.9rem; font-weight: 500; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        #toast.visible { opacity: 1; visibility: visible; }
+        .color-swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 4px; border: 1px solid rgba(255,255,255,0.2); vertical-align: text-top; }
+        .search-section { margin-bottom: 1.5rem; }
+        .search-form { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+        .search-form select { padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: inherit; font-size: 0.9rem; cursor: pointer; flex-grow: 0; min-width: 140px; }
+        .search-form input[type="text"] { padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: inherit; font-size: 0.9rem; flex-grow: 1; min-width: 200px; }
+        .search-form select:focus, .search-form input:focus { outline: none; border-color: var(--accent); }
+        .search-form .btn-search { flex-grow: 0; min-width: 10.5rem; padding: 0.6rem 1.25rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(145deg, #7f8c8d 0%, #b8c6cb 25%, #7f8c8d 50%, #ffffff 75%, #7f8c8d 100%); color: #000; border: 1px solid #777; cursor: pointer; font-family: inherit; transition: all 0.2s; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4), inset -1px -1px 0px rgba(255, 255, 255, 0.2), inset 1px 1px 0px rgba(0, 0, 0, 0.5); }
+        .search-form .btn-search:hover { transform: translateY(-2px); box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5), inset -1px -1px 0px rgba(255, 255, 255, 0.3), inset 1px 1px 0px rgba(0, 0, 0, 0.6); }
+        .search-form .btn-clear { flex-grow: 0; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.9rem; color: var(--muted); text-decoration: none; border: 1px solid var(--border); background: var(--surface); }
+        .search-form .btn-clear:hover { color: var(--text); border-color: var(--accent); }
+        .app-footer { font-size: 0.75rem; font-weight: 300; color: rgba(255, 255, 255, 0.3); text-align: center; padding-top: 60px; padding-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+    <div class="header-row">
+        <div>
+            <img src="{{ url_for('static', filename='Metal.png') }}" alt="Hexicon" class="site-logo">
+            <p class="tagline">Curate. Visualize. Build. <br> Your intelligent playground for UI snippets and color curation.</p>
+        </div>
+        <a href="{{ url_for('create') }}" class="btn-add">+ Add New Item</a>
+    </div>
+    <section class="analytics">
+        <div class="analytics-title">Analytics Dashboard</div>
+        <div class="analytics-grid">
+            <div class="stat-card">
+                <div class="stat-value">{{ total_items }}</div>
+                <div class="stat-label">Total Resources</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ css_percentage }}%</div>
+                <div class="stat-label">CSS Dominance</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ top_tag }}</div>
+                <div class="stat-label">Top Tag</div>
+            </div>
+        </div>
+    </section>
+    <section class="search-section">
+        <form method="GET" action="{{ url_for('index') }}" class="search-form">
+            <select name="type" aria-label="Search by">
+                <option value="name" {{ 'selected' if search_type == 'name' else '' }}>Search by Name</option>
+                <option value="tags" {{ 'selected' if search_type == 'tags' else '' }}>Search by Tags</option>
+            </select>
+            <input type="text" name="q" value="{{ search_query }}" placeholder="Keyword…" aria-label="Search keyword">
+            <button type="submit" class="btn-search">Search</button>
+            {% if search_query %}
+            <a href="{{ url_for('index') }}" class="btn-clear">Clear</a>
+            {% endif %}
+        </form>
+    </section>
+    {% if trending_tags %}
+    <section class="trending">
+        <div class="trending-title">Trending Tags</div>
+        <div class="trending-pills">
+            {% for tag in trending_tags %}
+            <span class="trending-pill">{{ tag }}</span>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+    {% if items %}
+    <div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Tags</th>
+                <th>Content</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item['id'] }}</td>
+                <td>{{ item['name'] }}</td>
+                <td>{{ item['element_type'] }}</td>
+                <td>
+                    <div class="tags-cell">
+                        {% set tag_list = (item['tags'] or '').split(',') %}
+                        {% for tag in tag_list %}
+                            {% set tag = tag.strip() %}
+                            {% if tag %}
+                                <span class="tag-pill">{{ tag }}</span>
+                            {% endif %}
+                        {% endfor %}
+                        {% if not (item['tags'] or '').strip() %}
+                            <span class="no-tags">—</span>
+                        {% endif %}
+                    </div>
+                </td>
+                <td class="content-cell">
+                    <div class="content-with-copy">
+                        <code>{{ item['content'] }}</code>
+                        <button type="button" class="btn-copy" aria-label="Copy content">📋 Copy</button>
+                    </div>
+                </td>
+                <td>
+                    <div class="actions">
+                        <a href="{{ url_for('preview', id=item['id']) }}" class="btn btn-preview">Preview</a>
+                        <a href="{{ url_for('edit', id=item['id']) }}" class="btn btn-edit">Edit</a>
+                        <form action="{{ url_for('delete_item', id=item['id']) }}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure?');">
+                            <button type="submit" class="btn btn-delete">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}
+    <p class="empty">No items yet.</p>
+    {% endif %}
+
+    <footer class="app-footer">Presented by Ivy. Powered by Gemini. Developed in Cursor.</footer>
+    </div>
+
+    <div id="toast" aria-live="polite">Copied to clipboard!</div>
+
+    <script>
+        (function() {
+            var toast = document.getElementById('toast');
+            function showToast() {
+                toast.classList.add('visible');
+                clearTimeout(toast._tid);
+                toast._tid = setTimeout(function() {
+                    toast.classList.remove('visible');
+                }, 2000);
+            }
+            document.body.addEventListener('click', function(e) {
+                var btn = e.target.closest('.btn-copy');
+                if (!btn) return;
+                var code = btn.parentElement.querySelector('code');
+                var text = code ? code.textContent : '';
+                if (!text) return;
+                navigator.clipboard.writeText(text).then(showToast).catch(function() { showToast(); });
+            });
+
+            function injectColorSwatches() {
+                var codeEls = document.querySelectorAll('.content-with-copy code');
+                var hexRe = /(#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})\b)/g;
+                codeEls.forEach(function(el) {
+                    if (el.closest('textarea') || el.closest('input')) return;
+                    el.innerHTML = el.innerHTML.replace(hexRe, '<span class="color-swatch" style="background-color: $1"></span>$1');
+                });
+            }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', injectColorSwatches);
+            } else {
+                injectColorSwatches();
+            }
+        })();
+    </script>
+</body>
+</html>
