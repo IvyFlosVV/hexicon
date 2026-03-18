@@ -1,3 +1,5 @@
+Tools used: Gemini + Cursor
+
 Prompt 1:
 I am building a CLI application called "Hexicon" (a UI Snippet & Color Lexicon) using Python and SQLite. 
 Please write the initial setup code in app.py:
